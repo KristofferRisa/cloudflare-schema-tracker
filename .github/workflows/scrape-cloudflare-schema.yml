@@ -1,0 +1,40 @@
+name: Scrape Cloudflare GraphQL Schema (Scoped)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "42 3 * * *"
+
+jobs:
+  scrape-cloudflare-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git for commits
+        run: |
+          git config user.name "Automated"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Fetch Cloudflare GraphQL schema (Scoped)
+        env:
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_AUTH_KEY: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
+        run: |
+          mkdir -p cloudflare
+          curl -X POST "https://api.cloudflare.com/client/v4/graphql" \
+            -H "X-Auth-Email: $CLOUDFLARE_EMAIL" \
+            -H "X-Auth-Key: $CLOUDFLARE_AUTH_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"query": "query IntrospectionQuery { __schema { types(filter: { name_in: [\"Viewer\", \"Zone\", \"HttpRequests1dGroup\"] }) { name kind description fields { name type { name kind ofType { name kind } } } } } }"}' \
+            | jq '.' > cloudflare/cloudflare-schema-scoped.json
+
+      - name: Commit and push if schema changed
+        run: |
+          git add -A
+          timestamp=$(date -u)
+          git commit -m "Cloudflare Schema Update: ${timestamp}" || exit 0
+          git push
