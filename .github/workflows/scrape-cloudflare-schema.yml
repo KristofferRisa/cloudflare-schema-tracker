@@ -34,7 +34,7 @@ jobs:
 
       - name: Commit and push if schema changed
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git add -A
           timestamp=$(date -u)
