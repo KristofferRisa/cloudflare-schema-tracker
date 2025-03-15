@@ -39,12 +39,13 @@ Trigger a manual run from GitHub Actions → Scrape Cloudflare GraphQL Schema.
 
 ### 🔍 How to Test Locally
 
-```sh
 Run this command (replace placeholders):
+
+```sh
 curl -X POST "https://api.cloudflare.com/client/v4/graphql" \
-  -H "X-Auth-Email: your-email@example.com" \
-  -H "X-Auth-Key: your-global-api-key" \
+  -H "X-Auth-Email: $CLOUDFLARE_EMAIL" \
+  -H "X-Auth-Key: $CLOUDFLARE_AUTH_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"query": "query IntrospectionQuery { __schema { types(filter: { name_in: [\"Viewer\", \"Zone\", \"HttpRequests1dGroup\"] }) { name kind description fields { name type { name kind ofType { name kind } } } } } }"}' \
-  | jq '.'
+  -d '{"query": "{ __schema { queryType { name } mutationType { name } subscriptionType { name } types { ...FullType } directives { name description locations args { ...InputValue } } } } fragment TypeRef on __Type { kind name ofType { kind name ofType { kind name ofType { kind name } } } } fragment InputValue on __InputValue { name description type { ...TypeRef } defaultValue } fragment FullType on __Type { kind name description fields(includeDeprecated: true) { name description args { ...InputValue } type { ...TypeRef } isDeprecated deprecationReason } inputFields { ...InputValue } interfaces { ...TypeRef } enumValues(includeDeprecated: true) { name description isDeprecated deprecationReason } possibleTypes { ...TypeRef } }"}' \
+| jq '.'
 ```
