@@ -1,0 +1,13 @@
+{
+  "data": null,
+  "errors": [
+    {
+      "message": "error parsing args for \"types\": unexpected args",
+      "path": null,
+      "extensions": {
+        "timestamp": "2025-03-15T09:15:51.085305114Z",
+        "ray_id": "920ae89bc681a9c4-SEA"
+      }
+    }
+  ]
+}
